@@ -164,6 +164,8 @@ Asynchronous Dynamic Programming에서도 policy evaluation이 끝나기 전에 
 
 우리는 policy evaluation과 policy improvement가 interact하는 것을 **Generalized policy iteration**라고 부른다. 거의 모든 rl methods는 GPI로 설명되어 진다. 즉 value function은 policy 를 토대로 improve되고 policy는 value function을 토대로 improve 되는 것이다. (policy $\pi$에서 $v_\pi$를, $v_\pi$에서 $\pi$를 구함)
 
+몇몇 case에서는 GPI가 optimal 로 converge 함이 증명되었지만 대부분의 case에서는 증명되지 않았다.
+
 ## 4.7 - Efficiency of Dynamic Programming
 
 ----
