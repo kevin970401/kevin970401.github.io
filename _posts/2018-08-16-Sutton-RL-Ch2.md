@@ -26,7 +26,7 @@ k-armed bandits
 - 매 time step마다 *estimated action value*가 가장 큰 action이 하나 이상 존재할 것이다. 우리는 이를 **greedy actions**이라 부른다.
 - 이 *greedy actions* 중 하나를 고르는 것을 **exploiting**이라 하고 nongreedy actions 중 하나를 고르는 것을 **exploring**이라 한다.
   - non greedy action 중 action value가 현재 greedy action보다 큰 경우가 있을 수 있으니, 이를 찾기 위해 *exploring*이 필요하다.
-- certainty하다는 건 estimated action value가 action value와 같을 때를 말한다.
+- **certainty**하다는 건 estimated action value가 action value와 같을 때를 말한다.
 - *exploiting*과 *exploring*의 밸런스를 맞추는 것 또한 rl 에서의 중요한 문제.
 
 ## 2.2 - Action-value Methods
