@@ -22,7 +22,7 @@ k-armed bandits
   - a라는 action을 택했을 때 reward의 expectation임
   - action value를 안다면 k-armed bandits를 깬것임. 가장 높은 action value를 가지는 action을 선택하면 가장 큰 reward를 얻을 것이므로.
 - action value를 확실하게 알지 못하므로 **estimated action value** at time step t 를 $Q_t(a)$ 라고 둔다.
-  - 이 $Q_t(a)$를 최대한 $q_\star (a)$에 근접하게 만드는 것이 목표이다.
+  - 이 $Q_t(a)$를 최대한 $q_\ast (a)$에 근접하게 만드는 것이 목표이다.
 - 매 time step마다 *estimated action value*가 가장 큰 action이 하나 이상 존재할 것이다. 우리는 이를 **greedy actions**이라 부른다.
 - 이 *greedy actions* 중 하나를 고르는 것을 **exploiting**이라 하고 nongreedy actions 중 하나를 고르는 것을 **exploring**이라 한다.
   - non greedy action 중 action value가 현재 greedy action보다 큰 경우가 있을 수 있으니, 이를 찾기 위해 *exploring*이 필요하다.

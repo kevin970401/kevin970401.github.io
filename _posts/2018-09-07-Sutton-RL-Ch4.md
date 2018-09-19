@@ -138,7 +138,7 @@ v_{k+1} (s) & = & \max_a \mathbb{E} [R_{t+1} + \gamma v_k(S_{t+1}) \vert S_t = s
 
 를 모든 state s에 대해 계산한 후 종료한다.
 
-아무 initial value function으로 시작하더라도 sequence $\{v_k\}$는 optimal value function $v_\star$에 converge한다.
+아무 initial value function으로 시작하더라도 sequence $\{v_k\}$는 optimal value function $v_\ast$에 converge한다.
 
 이 value iteration은 사실 policy evaluation을 한번만(여기서 한번만은 policy evaluation의 전체 state를 도는 loop문을 한번만 돈다는 것) 하고 policy improvement를 한번 하는 것과 같다.
 

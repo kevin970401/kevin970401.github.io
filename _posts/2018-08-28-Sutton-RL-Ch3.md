@@ -11,7 +11,7 @@ author: lee gunjun
 
 MDP에서 action은 immediate reward에만 영향을 주지 않고 state가 바뀜으로써 future reward까지 영향을 준다.
 
-Bandit problem에서 우리는 action value를 $q_\star (a)$, action에 대한 함수로만 풀었지만 MDP에선 $q_\star (s, a)$ 즉 action과 함께 state도 고려해야한다. 또는 우리는 해당 state의 optimal action selection의 action value를 나타내는 $v_\star(s)$를 구하게 될 것이다.
+Bandit problem에서 우리는 action value를 $q_\ast (a)$, action에 대한 함수로만 풀었지만 MDP에선 $q_\ast (s, a)$ 즉 action과 함께 state도 고려해야한다. 또는 우리는 해당 state의 optimal action selection의 action value를 나타내는 $v_\ast(s)$를 구하게 될 것이다.
 
 ## 3.1 - The Agent-Environment Interface
 
@@ -126,26 +126,26 @@ v_\pi (s) & = & \mathbb{E}_\pi [G_t \vert S_t = s]\\
 
 두 policies $\pi, \pi'$를 생각해보자. 이 중 $\pi$의 expected return이 모든 state에 대해 $\pi'$의 expected return 보다 크면 $\pi \ge \pi'$라고 한다. 다시 말하면 $\pi \ge \pi'\ if\ and\ only\ if\ v_\pi(s) \ge v_{\pi'}(s)\ for\ all\ s \in S$
 
-모든 policy보다 크거나 같은 policy가 꼭 하나씩 존재한다. 그걸 *optimal policy*라 한다. optimal policy는 하나 이상 존재할 수 있고 우리는 그걸 $\pi_\star$라고 표기한다. 그 optimal policy들은 같은 state-value function을 공유하는 데 우리는 그걸 *optimal state-value function*이라 부른다.
+모든 policy보다 크거나 같은 policy가 꼭 하나씩 존재한다. 그걸 *optimal policy*라 한다. optimal policy는 하나 이상 존재할 수 있고 우리는 그걸 $\pi_\ast$라고 표기한다. 그 optimal policy들은 같은 state-value function을 공유하는 데 우리는 그걸 *optimal state-value function*이라 부른다.
 
-$$v_\star(s) = \max_\pi v_\pi (s)$$
+$$v_\ast(s) = \max_\pi v_\pi (s)$$
 
 또한 optimal policies는 같은 *optimal action-value function* 을 공유한다.
 
-$$q_\star(s, a) = \max_\pi q_\pi(s, a)$$
+$$q_\ast(s, a) = \max_\pi q_\pi(s, a)$$
 
-$v_\star$와 $q_\star$는 다음과 같은 관계식을 가진다.
+$v_\ast$와 $q_\ast$는 다음과 같은 관계식을 가진다.
 
-$$q_\star(s, a) = \mathbb{E}[R_{t+1}+\gamma v_\star(S_{t+1}) \vert S_t = s, A_t = a]$$
+$$q_\ast(s, a) = \mathbb{E}[R_{t+1}+\gamma v_\ast(S_{t+1}) \vert S_t = s, A_t = a]$$
 
 optimal state-value function은 하나의 policy을 따르는 state-value function이기 때문에 당연히 위의 $v_\pi (s) = \sum_{a} \pi (a \vert s) \sum_{s', r} p(s', r \vert s, a) \left[ r + \gamma v_\pi(s') \right]\ for\ all\ s \in S$ 관계식을 만족한다. 하지만 optimal state-value function은 이보다 간단한 다른 식도 만족시킴을 보일 수 있다.
 
 $$\begin{matrix}
-v_\star(s) & = & \max_{a \in A(s)} q_{\pi_\star}(s, a)\\
-& = & \max_{a} \mathbb{E}_{\pi_\star} [G_t \vert S_t = s, A_t = a]\\
-& = & \max_{a} \mathbb{E}_{\pi_\star} [R_{t+1} + \gamma G_{t+1} \vert S_t = s, A_t = a]\\
-& = & \max_{a} \mathbb{E} [R_{t+1} + \gamma v_\star (S_{t+1}) \vert S_t = s, A_t = a]\\
-& = & max_{a} \sum_{s', r} p(s', r \vert s, a) [r+\gamma v_\star (s')]\\
+v_\ast(s) & = & \max_{a \in A(s)} q_{\pi_\ast}(s, a)\\
+& = & \max_{a} \mathbb{E}_{\pi_\ast} [G_t \vert S_t = s, A_t = a]\\
+& = & \max_{a} \mathbb{E}_{\pi_\ast} [R_{t+1} + \gamma G_{t+1} \vert S_t = s, A_t = a]\\
+& = & \max_{a} \mathbb{E} [R_{t+1} + \gamma v_\ast (S_{t+1}) \vert S_t = s, A_t = a]\\
+& = & max_{a} \sum_{s', r} p(s', r \vert s, a) [r+\gamma v_\ast (s')]\\
 \end{matrix}$$
 
 위의 관계식을 *Bellman optimal equation*이라 부른다.
@@ -153,12 +153,12 @@ v_\star(s) & = & \max_{a \in A(s)} q_{\pi_\star}(s, a)\\
 action-value function 의 *Bellman optimal equation*은 다음과 같다
 
 $$\begin{matrix}
-q_\star(s, a) & = & \mathbb{E}[R_{t+1}+\gamma v_\star(S_{t+1}) \vert S_t = s, A_t = a]\\
-& = & \mathbb{E}[R_{t+1}+\gamma \max_{a'} q_\star (S_{t+1}, a') \vert S_t = s, A_t = a]\\
-& = & \sum_{s', r} p(s', r \vert s, a) [r+\gamma \max_{a'} q_\star (s', a')]
+q_\ast(s, a) & = & \mathbb{E}[R_{t+1}+\gamma v_\ast(S_{t+1}) \vert S_t = s, A_t = a]\\
+& = & \mathbb{E}[R_{t+1}+\gamma \max_{a'} q_\ast (S_{t+1}, a') \vert S_t = s, A_t = a]\\
+& = & \sum_{s', r} p(s', r \vert s, a) [r+\gamma \max_{a'} q_\ast (s', a')]
 \end{matrix}$$
 
-$v_\star$를 알고 있다면 optimal policy를 결정하는 것은 매우 쉽다. 각 state 마다 bellman optimality equation을 만족하는 a를 선택하면 된다. 이를 greedy라고 한다.
+$v_\ast$를 알고 있다면 optimal policy를 결정하는 것은 매우 쉽다. 각 state 마다 bellman optimality equation을 만족하는 a를 선택하면 된다. 이를 greedy라고 한다.
 
 bellma optimality eq 를 통해 optimal policy를 찾는 것은 3가지 가정이 필요하다.
 

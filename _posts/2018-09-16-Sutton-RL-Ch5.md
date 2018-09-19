@@ -71,7 +71,7 @@ exploring start 는 좋지만 대개 실제 상황에서는 써먹지 못하는�
 
 자 이제 MC를 이용해서 어떻게 control 할지 알아보자. control 한다는 것은 approximative optimal policy를 구한다는 것이다. 전반적으론 DP에서 다룬 GPI(Generalized Policy Iteration)과 같은 양상이다. policy를 가깝게 구하고, value function을 가깝게 구하고... 반복이다.
 
-$$\pi_0 \rightarrow^{E} q_{\pi_0} \rightarrow^{I} \pi_1 \rightarrow^{E} \cdots \rightarrow^{I} \pi_\star \rightarrow^{E} q_{\pi_\star}$$
+$$\pi_0 \rightarrow^{E} q_{\pi_0} \rightarrow^{I} \pi_1 \rightarrow^{E} \cdots \rightarrow^{I} \pi_\ast \rightarrow^{E} q_{\pi_\ast}$$
 
 Policy evaluation은 많은 episodes를 뽑아내서 action-value function을 가깝게 구하는 것인데, 여기서 우리는 두 개의 가정을 하는데, 첫째로 exploring starts를 한다고 가정하고, 둘째로 무한번 sample해서 아주 정확한 action-value function을 구한다고 가정한다.
 
@@ -108,7 +108,7 @@ Loop forever(for each episode)<br>
 &emsp;Generate an episode from $S_0, A_0$, following $\pi: S_0, A_0, R_1, \cdots S_{T-1}, A_{T-1}, R_{T}$<br>
 &emsp;G <- 0<br>
 &emsp;Loop for each step of episode, t=T-1, T-2, ..., 0:<br>
-&emsp;&emsp;G <- $\gamma$G + $R_{t+!}$<br>
+&emsp;&emsp;G <- $\gamma$G + $R_{t+1}$<br>
 &emsp;&emsp;Unless the pair $S_t, A_t$ appears in $S_0, A_0, S_1, A_1, ..., S_{t-1}, A_{t-1}$:<br> 
 &emsp;&emsp;&emsp;Append G to $Returns(S_t, A_t)$<br>
 &emsp;&emsp;&emsp;$Q(S_t, A_t) <- average(Returns(S_t, A_t))$<br>
@@ -118,6 +118,46 @@ MC ES의 주목할 점은 return이 어떤 policy에서 나온 것이든 상관�
 
 
 ## 5.4 Monte Carlo Contol without Exploring Starts
+
+----
+
+지금까진 계속 exploring starts를 가정해왔다. 어떻게 하면 이 가정을 없앨 수 있을까? 이걸 알아보기 전에 먼제 on-policy와 off-policy가 무엇인지 알아보자.
+
+- on-policy: sample episode 만들때 decision 하는데 사용한 policy를 evaluate고 improve 함
+- off-policy: sample episode 만들때 decision 하는데 사용한 policy와 evaluate하고 improve하는 policy가 다름
+
+일례로 MC ES는 on-policy method다. 지금 session에선 MC ES와 같은 on-policy MC method들이 exploring starts 없이 어떻게 디자인될 수 있을지 알아본다.
+
+on-policy control methods에서 policy는 *soft*하다. 여기서 policy가 soft 하다는 것은 $\pi(a \vert s) \gt 0\ for\ all\ s \in S\ and\ all\ a \in A(s)$ 임을 의미한다. on-policy는 soft하면서도 점진적으로 deterministic optimal policy로 다가간다. Ch2에서 우리는 이러한 on-policy들을 많이 다뤘었다. 이 때 우리는 $\epsilon -greedy$ policies 를 이용했었다. 이 $\epsilon -greedy$ policies 는 $\epsilon -soft$ policy이다. 여기서 $\epsilon -soft$ 는 $\pi(a \vert s) \ge \frac{\epsilon}{A(s)}\ for\ all\ states\ and\ actions,\ for\ some\ \epsilon \gt 0$ 임을 의미한다.
+
+on-policy MC control의 전반적인 idea는 여전히 GPI 이다. MC ES 처럼 우리는 또 first-visit MC Methods를 이용하여 현재 policy의 action-value function을 estimate할 것이다. 그런데 지금은 policy를 전처럼 그냥 greedy하게 improve하지 못한다. 그냥 greedy 하게 improve 했다가는 영영 알 수 없는 state-action pair 들이 생기기 때문에 다른 방법을 강구해야만 한다. 운좋게도 GPI는 policy improve 가 꼭 Greedy여야만 하는게 아니라 다른 방법(greedy로 향하는)을 써도 된다. 따라서 우리는 $\epsilon -greedy$를 이용하여 improve 한다. for any $\epsilon -soft$ policy $\pi$, $q_\pi$에 대한 $\epsilon -greedy$ policy는 $\pi$ 보다 나쁘지 않은게 보장된다. 알고리즘은 아래와 같다
+
+### On-policy Monte Carlo control, for $\epsilon - soft$ policies, estimates $\pi \approx \pi_\ast$
+
+initialize:<br>
+&emsp;$\pi(s) \leftarrow$ an arbitrary $\epsilon -soft$ policy<br>
+&emsp;$Q(s, a) \in \mathbb{R}$, for all $s \in S, a \in A(s)$<br>
+&emsp;$Returns(s, a) \leftarrow$ Empty list, for all $s \in S, a \in A(s)$<br>
+
+Loop forever(for each episode)<br>
+&emsp;Generate an episode from $S_0, A_0$, following $\pi: S_0, A_0, R_1, \cdots S_{T-1}, A_{T-1}, R_{T}$<br>
+&emsp;G $\leftarrow$ 0<br>
+&emsp;Loop for each step of episode, t=T-1, T-2, ..., 0:<br>
+&emsp;&emsp;G $\leftarrow \gamma$G + $R_{t+1}$<br>
+&emsp;&emsp;Unless the pair $S_t, A_t$ appears in $S_0, A_0, S_1, A_1, ..., S_{t-1}, A_{t-1}$:<br> 
+&emsp;&emsp;&emsp;Append G to $Returns(S_t, A_t)$<br>
+&emsp;&emsp;&emsp;$Q(S_t, A_t) \leftarrow average(Returns(S_t, A_t))$<br>
+&emsp;&emsp;&emsp;$A^\ast \leftarrow arg\max_a Q(S_t, a)$<br>
+&emsp;&emsp;&emsp;for all $a \in A(S_t)$<br>
+&emsp;&emsp;&emsp;&emsp;$\pi(a \vert S_t) \leftarrow \begin{cases} 1-\epsilon + \frac{\epsilon}{\vert A(S_t) \vert} & if\ a\ = A^\ast\\ \frac{\epsilon}{\vert A(S_t) \vert}, & if\ a\ \neq A^\ast \end{cases}$<br>
+
+let $\pi'$ be the $\epsilon -greedy$ policy. the conditions of the policy improvement theorem apply because for any $s \in S$:
+
+$$q_\pi (s, \pi'(s)) \ge v_\pi (s)$$
+
+(증명은 책에 있다. 생략.) 즉 $\pi' \ge \pi$ 므로 policy improvement에 써먹을 수 있다. 
+
+## 5.5 Off-policy Prediction via Importance Sampling
 
 ----
 
