@@ -68,7 +68,7 @@ $$H(p, q) = H(p, p) + D_{KL} (p || q)$$
 
 이다.
 
-이때 KL-Divergence 의 특성을 통해 $D_{KL} (p || q)$ 는 p=q일 때 최소이고 그때의 값은 0 임을 알 수 있다. (이것을 증명하고 싶으면 위와 마찬가지로 젠센 부등식을 사용하면 된다.)
+이때 KL-Divergence 의 특성을 통해 $D_{KL} (p \vert \vert q)$ 는 p=q일 때 최소이고 그때의 값은 0 임을 알 수 있다. (이것을 증명하고 싶으면 위와 마찬가지로 젠센 부등식을 사용하면 된다.)
 
 H(p, p)는 constant 므로 q=p 일 때 H(p, q) 은 최소고 이때 cross entropy의 값은 p의 entropy 인 H(p, p) 이다.
 
