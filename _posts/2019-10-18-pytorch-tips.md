@@ -9,7 +9,7 @@ author: lee gunjun
 
 ----
 
-1. convex optimization - https://wikidocs.net/17203
+1. convex optimization - <https://wikidocs.net/17203>
 
 
 ----
