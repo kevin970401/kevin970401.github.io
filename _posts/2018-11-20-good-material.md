@@ -18,6 +18,8 @@ author: lee gunjun
 
 2. 수학
     1. convex optimization
+    2. Introduction to Statistical Learning (ISLR)
+    3. Elements of Statistical Learning (ESL)
 
 ----
 
@@ -31,6 +33,7 @@ author: lee gunjun
 ## 2. 수학
 
 1. convex optimization - <https://wikidocs.net/17203>
-
+2. ISLR - <http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf>
+3. ESL - <http://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12.pdf>
 
 ----
