@@ -35,5 +35,5 @@ author: lee gunjun
 1. convex optimization - <https://wikidocs.net/17203>
 2. ISLR - <http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf>
 3. ESL - <http://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12.pdf>
-    * 상세설명 및 solution - <https://waxworksmath.com/Authors/G_M/Hastie/WriteUp/Weatherwax_Epstein_Hastie_Solution_Manual.pdf>
+    * [상세설명 및 solution](https://waxworksmath.com/Authors/G_M/Hastie/WriteUp/Weatherwax_Epstein_Hastie_Solution_Manual.pdf)
 ----
