@@ -219,6 +219,8 @@ with tf.Session() as sess:
 * pbtxt와 ckpt을 이용하여 pb 파일 생성
 * pb 파일을 tflite 로 변환
 * pb 파일을 coreml 로 변환
+* pytorch 를 onnx 로 변환
+* onnx 를 pb 로 변환
 
 ## pbtxt와 ckpt을 이용하여 pb 파일 생성
 
@@ -310,8 +312,6 @@ model.features[8].ceil_model = False # pooling layer 의 ceil mode가 True 면 o
 torch.onnx.export(model, torch.ones(1, 3, 224, 224), 'output.onnx')
 ```
 
-pytorch 에는 onnx converter 가 기본으로 있다.
-
 ## onnx 를 pb 로 변환
 
 ----
@@ -322,11 +322,11 @@ pytorch 에는 onnx converter 가 기본으로 있다.
 
 ```
 import onnx
-
 from onnx_tf.backend import prepare
 
 
 onnx_model = onnx.load("input.onnx")  # load onnx model
 tf_rep = prepare(onnx_model)  # prepare tf representation
+
 tf_rep.export_graph("output.pb")  # export the model
 ```
