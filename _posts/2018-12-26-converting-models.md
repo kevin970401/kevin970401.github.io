@@ -103,7 +103,7 @@ SqueezeNet(
 
 이를 똑같이 tensorflow 로 짜준다. 그리고 이름도 맞춰준다. (tf의 scope을 열심히 쓰면 된다..) 
 
-```tensorflow squeezenet
+```
 from tensorflow.contrib.layers import conv2d, avg_pool2d, max_pool2d
 
 def fire_module(inputs, squeeze_depth, expand_depth, scope=None):
@@ -120,6 +120,7 @@ def _expand(inputs, num_outputs, scope):
     e1x1 = conv2d(inputs, num_outputs, [1, 1], stride=1, scope='expand1x1')
     e3x3 = conv2d(inputs, num_outputs, [3, 3], scope='expand3x3')
     return tf.concat([e1x1, e3x3], 3)
+
 
 class Squeezenet(object):
     def __init__(self, num_class):
@@ -224,7 +225,12 @@ with tf.Session() as sess:
 pb 파일은 tensorflow 의 freeze_graph를 이용하여 pbtxt와 ckpt를 이용하여 만들면 된다. \
 freeze_graph는 tf를 설치할 때 자동으로 같이 설치된다.
 
-freeze_graph --input_graph={pbtxt 경로} --input_checkpoint={ckpt 경로} --output_graph={pb 파일 출력 경로} --output_node_names={tf의 출력 layer 이름} 
+```
+freeze_graph --input_graph={pbtxt 경로} \
+             --input_checkpoint={ckpt 경로} \
+             --output_graph={pb 파일 출력 경로} \
+             --output_node_names={tf의 출력 layer 이름} 
+```
 
 ```
 ex) freeze_graph --input_graph=trans/squeeze_graph.pbtxt \
