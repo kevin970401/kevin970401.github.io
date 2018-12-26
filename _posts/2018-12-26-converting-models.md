@@ -256,8 +256,8 @@ with tf.Session(graph=tf.Graph()) as sess:
         print(op.name)
 
     input_tensor = sess.graph.get_tensor_by_name('input:0')
-    softmax_tensor = sess.graph.get_tensor_by_name('Softmax:0')
-    tflite_model = tf.contrib.lite.toco_convert(sess.graph_def, [input_tensor], [softmax_tensor])
+    output_tensor = sess.graph.get_tensor_by_name('Softmax:0')
+    tflite_model = tf.contrib.lite.toco_convert(sess.graph_def, [input_tensor], [output_tensor])
     open("{tflite 파일 저장할 경로}", "wb").write(tflite_model)
 ```
 operation이 아니고 tensor를 찾아야 하므로 name 에 :0을 넣어주는 걸 잊지 말자.
