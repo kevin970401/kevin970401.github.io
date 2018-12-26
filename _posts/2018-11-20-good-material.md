@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "좋은 자료들"
-categories: Math
+categories: ETC
 author: lee gunjun
 ---
 
