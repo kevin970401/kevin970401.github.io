@@ -15,7 +15,9 @@ author: lee gunjun
 2. 이름을 동일하게 해준다.
 3. th->tf로 학습된 parameter를 옮겨준다.
 
-onnx을 쓰는 방법도 있지만 지원 op 도 적고 결과물이 복잡하고.. 등등의 이유로 안 썼다.
+onnx 을 쓰는 방법도 있지만 지원 op 도 적고 결과물이 복잡하고.. 등등의 이유로 안 썼다.
+
+onnx 로 변환하는 법도 아래에 적어놨다.
 
 ## 1. pytorch 모델을 똑같이 tensorflow로 만들기 & 2. 이름(scope) 동일하게 해주기.
 
@@ -289,3 +291,42 @@ tf_converter.convert(
 ```
 
 [tfcoreml](https://github.com/tf-coreml/tf-coreml) 을 이용하면 쉽게 된다.
+
+## pytorch 를 onnx 로 변환
+
+----
+
+**틀린 정보 있을 수 있음**
+
+```
+import torch
+import torchvision
+
+model = torchvision.models.squeezenet1_1()
+model.load_state_dict(torch.load('input.pth'))
+model.features[2].ceil_model = False # pooling layer 의 ceil mode가 True 면 onnx 로 변환이 안 됨.
+model.features[5].ceil_model = False # pooling layer 의 ceil mode가 True 면 onnx 로 변환이 안 됨.
+model.features[8].ceil_model = False # pooling layer 의 ceil mode가 True 면 onnx 로 변환이 안 됨.
+torch.onnx.export(model, torch.ones(1, 3, 224, 224), 'output.onnx')
+```
+
+pytorch 에는 onnx converter 가 기본으로 있다.
+
+## onnx 를 pb 로 변환
+
+----
+
+**틀린 정보 있을 수 있음**
+
+먼저 pip install onnx-tf 를 한다.
+
+```
+import onnx
+
+from onnx_tf.backend import prepare
+
+
+onnx_model = onnx.load("input.onnx")  # load onnx model
+tf_rep = prepare(onnx_model)  # prepare tf representation
+tf_rep.export_graph("output.pb")  # export the model
+```
