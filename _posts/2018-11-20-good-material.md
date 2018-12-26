@@ -15,6 +15,7 @@ author: lee gunjun
     1. ssh 자동 로그인
     2. ssh 연결 유지
     3. python의 package와 module
+    4. 내가 쓰는 vscode extensions
 
 2. 수학
     1. convex optimization
@@ -29,6 +30,16 @@ author: lee gunjun
 2. ssh 연결 유지 - <https://andromedarabbit.net/ssh-%EC%A0%91%EC%86%8D%EC%9D%B4-%EC%9E%90%EA%BE%B8-%EB%81%8A%EA%B2%A8%EC%84%9C-%EC%A7%9C%EC%A6%9D%EB%82%A0-%EB%95%8C/>
     * client ~/.ssh/config 에 ServerAliveInterval 60 추가
 3. python의 package와 module - <https://dojang.io/mod/page/view.php?id=1147>
+4. 내가 쓰는 vscode extensions
+    1. autoDocstring - python docstring
+    2. Better TOML - toml 파일
+    3. Excel Viewer - csv 뷰어
+    4. Gitlens - git
+    5. Markdown+Math - markdown에 Latex
+    6. Python - python
+    7. Rainbow Brackets - colorize brackets
+    8. Rainbow CSV - colorize csv
+    9. Rust (rls) - rust
 
 ## 2. 수학
 
@@ -36,5 +47,5 @@ author: lee gunjun
 2. ISLR - <http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf>
 3. ESL - <http://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12.pdf>
     * [상세설명 및 solution](https://waxworksmath.com/Authors/G_M/Hastie/WriteUp/Weatherwax_Epstein_Hastie_Solution_Manual.pdf)
-    
+
 ----
