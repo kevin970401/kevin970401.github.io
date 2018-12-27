@@ -233,7 +233,7 @@ freeze_graph는 tf를 설치할 때 자동으로 같이 설치된다.
 freeze_graph --input_graph={pbtxt 경로} \
              --input_checkpoint={ckpt 경로} \
              --output_graph={pb 파일 출력 경로} \
-             --output_node_names={tf의 출력 layer 이름} 
+             --output_node_names={tf의 출력 node 이름} 
 ```
 
 ```
@@ -270,7 +270,7 @@ with tf.Session(graph=tf.Graph()) as sess:
     tflite_model = tf.contrib.lite.toco_convert(sess.graph_def, [input_tensor], [output_tensor])
     open("{tflite 파일 저장할 경로}", "wb").write(tflite_model)
 ```
-operation이 아니고 tensor를 찾아야 하므로 name 에 :0을 넣어주는 걸 잊지 말자.
+operation이 아니고 tensor를 찾아야 하므로 get_tensor_by_name 에 :0을 넣어주는 걸 잊지 말자.
 
 위 코드가 실행됐다면 tflite 파일이 생성된다.
 
