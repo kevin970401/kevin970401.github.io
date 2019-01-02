@@ -217,6 +217,7 @@ with tf.Session() as sess:
 # 추가
 
 * pbtxt와 ckpt을 이용하여 pb 파일 생성
+* pb 파일 tensorflow에서 쓰기
 * pb 파일을 tflite 로 변환
 * pb 파일을 coreml 로 변환
 * pytorch 를 onnx 로 변환
@@ -243,9 +244,52 @@ ex) freeze_graph --input_graph=trans/squeeze_graph.pbtxt \
                  --output_node_names=Softmax
 ```
 
-output_node_names는 출력 node의 이름을 넣어주면 된다. \
+output_node_names는 출력 node의 이름을 넣어주면 된다.
+
 출력 node의 이름은 tensorboard 켜서 확인하는 게 제일 안전하고 쉽다.
 
+
+## pb 파일 tensorflow 에서 쓰기
+
+----
+
+```
+def load_graph(frozen_graph_filename):
+    with tf.gfile.GFile(frozen_graph_filename, "rb") as f:
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(f.read())
+
+    with tf.Graph().as_default() as graph:
+        tf.import_graph_def(graph_def)
+
+        return graph
+
+def convert(img):
+    img = np.array(img)
+    img = np.expand_dims(img, axis=0)
+    img = (img/255-MEAN)/STD
+    return img
+
+if __name__ == '__main__':
+    graph = load_graph('./trans/squeeze.pb')
+    for op in graph.get_operations():
+            print(op.name)
+    x = graph.get_tensor_by_name('import/input:0')
+    y = graph.get_tensor_by_name('import/Softmax:0')
+
+    with tf.Session(graph=graph)) as sess:
+        for img_name in tqdm(os.listdir('data/val/sky_no')):
+            img = Image.open(os.path.join('data/val/sky_no', img_name))
+            img = convert(img)
+            out = sess.run(y, feed_dict={x:img})
+            print(out)
+```
+asd
+graph를 로드하고 (load_graph)
+
+input tensor와 output tensor를 찾아서 (graph.get_tensor_by_name)
+
+sess.run 해주면 된다.
 
 ## pb 파일을 tflite 로 변환
 
