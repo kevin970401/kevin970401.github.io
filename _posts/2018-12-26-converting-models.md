@@ -284,7 +284,7 @@ if __name__ == '__main__':
             out = sess.run(y, feed_dict={x:img})
             print(out)
 ```
-asd
+
 graph를 로드하고 (load_graph)
 
 input tensor와 output tensor를 찾아서 (graph.get_tensor_by_name)
