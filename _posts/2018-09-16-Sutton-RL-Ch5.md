@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Sutton RL Ch.5 - Monte Carlo Methods"
+title: "Sutton RL Ch.5 - Monte Carlo Methods(작성 중)"
 categories: RL
 author: lee gunjun
 ---
