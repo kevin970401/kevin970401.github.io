@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Reinforcement Learning Ch.1 Markov Decision Process"
+title: "Sutton RL Ch.1 - Markov Decision Process"
 categories: RL
 author: lee gunjun
 ---

@@ -5,7 +5,7 @@ categories: DNN
 author: lee gunjun
 ---
 
-# Background
+# 1. Background
 ----
 
 ## overfitting
@@ -31,7 +31,7 @@ $$Pr[R_{true}(h) - R_{train}(h) \gt \epsilon] \le \left\vert \mathcal{H} \right\
 
 ## PAC with Infinite Hypothesis Space
 
-$\mathcal{H}$ 가 infinite set 이면 $|\mathcal{H}|$ 가 infinite 가 되어버리므로 PAC bound 가 쓸모가 없어짐.
+$\mathcal{H}$ 가 infinite set 이면 $\vert \mathcal{H} \vert$ 가 infinite 가 되어버리므로 PAC bound 가 쓸모가 없어짐.
 
 그래서 나온게 VC(Vapnik-Chervonenkis) dimension 임. $VC(\mathcal{H})$ 는 Instance space $\mathcal{X}$ 와 $\mathcal{H}$ 에 대해 정의됨. 의미론적으론 classification task 에서 $\mathcal{H}$ capacity 를 의미함.
 
@@ -62,7 +62,7 @@ $VC(\mathcal{H}) = n+1$
 #### Example - 3
 k-Nearest Neighbor 에서 k = 1 일 때
 
-$VC(\mathcal{H}) = \infin$
+$VC(\mathcal{H}) = \infty$
 
 증명 당연하므로 생략
 
@@ -72,7 +72,7 @@ $VC(\mathcal{H}) = k$ 라고 하면 $\mathcal{H}$ 을 통해 k개 instances 를 
 
 $$VC(\mathcal{H}) = k \le log_2(\vert \mathcal{H} \vert)$$
 
-# DANN
+# 2. DANN
 ----
 
 $$\mathcal{H}-divergence$$
@@ -80,6 +80,12 @@ $$\begin{matrix}\\
 d_\mathcal{H}(\mathcal{D_S^X}, \mathcal{D_T^X}) & = & 2 \sup_{\eta \in \mathcal{H}} \left\vert \Pr_{x \sim D_S^X}[\eta (x) = 1] - \Pr_{x \sim D_T^X}[\eta (x) = 1] \right\vert \\
 & = & 2 \sup_{\eta \in \mathcal{H}} \left\vert \Pr_{x \sim D_S^X}[\eta (x) = 0] - \Pr_{x \sim D_T^X}[\eta (x) = 0] \right\vert \\
 \end{matrix}$$
+
+# 3. ADDA
+----
+
+# 4. Self-Ensembling
+----
 
 # Reference
 
