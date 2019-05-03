@@ -184,9 +184,20 @@ author: lee gunjun
 >
 > 특징 1: $AX+b \sim N(A\mu+b, A\Sigma A^t)$
 >
-> 특징 2: $\dbinom{X_1}{X_2} \sim N \left ( \dbinom{\mu_1}{\mu_2}, \begin{pmatrix} \Sigma_{11} & \Sigma_{12}\\ \Sigma_{21} & \Sigma_{22} \end{pmatrix} \right )$ 일 때, $Cov(X_1, X_2) = \Sigma_{12} = 0 이면 $X_1$와 $X_2$ 는 서로 독립$
+> 특징 2: $\dbinom{X_1}{X_2} \sim N \left ( \dbinom{\mu_1}{\mu_2}, \begin{pmatrix} \Sigma_{11} & \Sigma_{12}\\ \Sigma_{21} & \Sigma_{22} \end{pmatrix} \right )$ 일 때, $Cov(X_1, X_2) = \Sigma_{12} = 0$ 이면 $X_1$와 $X_2$ 는 서로 독립
 >
 > 특징 3: $\dbinom{X_1}{X_2} \sim N \left ( \dbinom{\mu_1}{\mu_2}, \begin{pmatrix} \Sigma_{11} & \Sigma_{12}\\ \Sigma_{21} & \Sigma_{22} \end{pmatrix} \right )$ 면 $X_1 \sim N(\mu_1, \Sigma_{11})$
+>
+> 특징 4: $X \sim N_k(\mu, \Sigma)$ 이고 $\Sigma$가 정칙행렬이면 
+>
+> $$(X-\mu)^t \Sigma (X-\mu) \sim \chi^2(k)$$
+
+### ch5 표본분포의 근사
+
+**중심극한정리**
+> 확률변수 $X_1, X_2, \cdots, X_n$ 이 서로 독립이고 동일한 분포를 따르며 $Var(X_1)$ 이 양의 실수일 때
+>
+> $$E(X_1) = \mu, Var(X_1) = \sigma^2 < \infty$$
 
 #### 분포 간의 관계
 

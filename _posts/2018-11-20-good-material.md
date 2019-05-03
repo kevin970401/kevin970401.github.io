@@ -41,7 +41,9 @@ author: lee gunjun
     1. Rainbow Brackets - colorize brackets
     1. Rainbow CSV - colorize csv
     1. Rust (rls) - rust
-
+1. 우분투 원격 접속 - <https://extrememanual.net/12210>
+    * desktop sharing 이용
+    
 ## 2. 수학
 
 1. convex optimization - <https://wikidocs.net/17203>
