@@ -26,7 +26,7 @@ k-armed bandits
 - 매 time step마다 *estimated action value*가 가장 큰 action이 하나 이상 존재할 것이다. 우리는 이를 **greedy actions**이라 부른다.
 - 이 *greedy actions* 중 하나를 고르는 것을 **exploiting**이라 하고 nongreedy actions 중 하나를 고르는 것을 **exploring**이라 한다.
   - non greedy action 중 action value가 현재 greedy action보다 큰 경우가 있을 수 있으니, 이를 찾기 위해 *exploring*이 필요하다.
-- **certainty**하다는 건 estimated action value가 action value와 같을 때를 말한다.
+- **certainty**는 estimated action value가 action value와 같을 때를 말한다.
 - *exploiting*과 *exploring*의 밸런스를 맞추는 것 또한 rl 에서의 중요한 문제.
 
 ## 2.2 - Action-value Methods
@@ -51,11 +51,11 @@ $\epsilon -greedy\ action\ selection$은 $\epsilon$ 의 확률로 greedy action�
 
 실험 해 보면 실제로 $\epsilon -greedy$가 greedy보다 결과가 좋게 나온다.
 
-## 2.4 - Incremental Implementation
+## 2.4 - Incremental Implementation (skip 가능)
 
 ----
 
-우리는 아까 estimate action value을 구할 때 observed rewards 들의 평균을 계산했었다. 이걸 어떻게 컴퓨터에서 효율적인 방법으로 구현할 수 있을까
+우리는 아까 estimated action value을 구할 때 observed rewards 들의 평균을 계산했었다. 이걸 어떻게 컴퓨터에서 효율적인 방법으로 구현할 수 있을까
 
 제한 조건: constant memory, constant per-time-step computation.
 
@@ -71,21 +71,33 @@ Q_{n+1}&=& \frac{1}{n} \sum_{i=1}^{n} R_i \\
 &=& \frac{1}{n} \left(R_n + nQ_n - Q_n \right)\\
 &=& Q_n + \frac{1}{n} [R_n - Q_n] \\
 \end{matrix} $$
-$$ \therefore Q_{n+1} = Q_n + \frac{1}{n} [R_n - Q_n] $$
+
+즉 정리하면
+
+$$ \begin{matrix}\therefore 
+Q_{n+1}&=&Q_n + \frac{1}{n} [R_n - Q_n] \\
+&=&[1-\frac{1}{n}]Q_n + \frac{1}{n} R_n
+\end{matrix}$$
 
 이렇게 함으로써 constant memory, constant per-time-step computation의 제한 조건에서 estimated action value를 구할 수 있다.
+
+*개인의견*: 위 처럼 하면 floating point 때문에 오차 계속 커짐. 그냥 cumulative reward 만 계속 update 하고 시행햇수로 나눠주자.
 
 ## 2.5 - Tracking a Nonstationary Problem
 
 ----
 
-stationary bandit problem에서는 reward probability가 시간이 지나도 변하지 않기 때문에 obserced rewards의 average를 구하는 것으로 충분했다.
+stationary bandit problem에서는 reward probability가 시간이 지나도 변하지 않기 때문에 observed rewards의 average를 구하는 것으로 충분했다.
 
 실제로 rl 할때는 nonstationary problem(reward probability가 시간이 지남에 따라 변함)을 자주 만나기 때문에 이에 대한 대처가 필요하다.
 
-가장 유명한 방법은 constatnt step-size parameter를 이용하는 것이다.
+가장 유명한 방법은 constant step-size parameter를 이용하는 것이다.
 
 $$Q_{n+1} = Q_{n} + \alpha [R_n - Q_n]\ \ where \ \alpha\in(0,1]$$
+
+또는 (같은 식이다)
+
+$$Q_{n+1} = [1-\alpha]Q_{n} + \alpha R_n\ \ where \ \alpha\in(0,1]$$
 
 $Q_n$은 weighted average of past rewards 이다.
 

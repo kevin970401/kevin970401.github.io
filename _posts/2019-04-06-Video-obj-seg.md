@@ -27,7 +27,7 @@ Fast End-to-End Embedding Learning for Video Object Segmention
 
 DAVIS 에서 fine-tuning on first frame 없는 기법들 중에선 SOTA.
 
-semi-supervised VOS는 보통 first frame gt mask 에 fine-tuning 하는 ~~꼼수~~ 기법이 많이 쓰이고 더불어 extensive engineering 을 걸쳐 나온 complex 한 model 을 이용한다. 그로 인해 성능은 좋지만 runtime 이 매우 길어 practical 하게 쓰는 데에는 문제가 있었다. *(2018 DAVIS 에서 1위를 차지한 PReMVOS 는 한 frame 당 38초나 걸린다.)*
+semi-supervised VOS는 보통 first frame gt mask 에 fine-tuning 하는 기법이 많이 쓰이고 더불어 extensive engineering 을 걸쳐 나온 complex 한 model 을 이용한다. 그로 인해 성능은 좋지만 runtime 이 매우 길어 practical 하게 쓰는 데에는 문제가 있었다. *(2018 DAVIS 에서 1위를 차지한 PReMVOS 는 한 frame 당 38초나 걸린다.)*
 
 FEELVOS 는 practical usability 를 고려함.
 
@@ -40,18 +40,27 @@ FEELVOS 는 practical usability 를 고려함.
 * End-to-end
     * multi object segmentation problem 도 end-to-end 로 됨.
         * VOS 기법 중에 obj 종류만큼 inference 하는 애들도 있는데 이런 식으로 안 한다는 뜻
-* String
+* Strong
     * object seg 잘 함
 
-이를 만족하는 기법을 만들기 위해 FEELVOS 는 Pixel-Wise Metric Learning (PML) 에서 아이디어를 얻음. PML 은 pixel-wise embedding 을 triplet loss 을 이용하여 학습. test time 에는 first frame 과 nearst neighbor 로 predict
+이를 만족하는 기법을 만들기 위해 FEELVOS 는 Pixel-Wise Metric Learning (PML) 에서 아이디어를 얻음. PML 은 pixel-wise embedding 을 triplet loss 을 이용하여 학습하고, test time 에는 first frame 에서 계산한 pixel space 의 nearest neighbor 로 predict 함.
 
-PML 은 fast 하고 simple 하지만 결과물이 별로임.
+PML 은 fast 하고 simple 하지만 learning process 가 end-to-end가 아니고 결과물이 별로임. (nearest neighbor 에 너무 치중된 predict를 하기 때문)
 
-그래서 FEELVOS 는 PML과 비슷하게 learned embedding과 Nearst Neighbor 을 쓰되 그걸 final segmentation decision 에 사용하는 대신 internal guidance of the convolutional network 에 쓴다.
+그래서 FEELVOS 는 PML과 비슷하게 learned embedding과 Nearst Neighbor 을 쓰되 그걸 final segmentation decision 에 사용하는 대신 internal guidance of the convolutional network(나중에 설명) 에 쓴다. 이렇게 하면 triplet loss 같은 걸 사용하지 않고 단순히 cross entropy 를 이용하고도 embedding 을 학습할 수 있다.
 
 architecture 는 DeepLabv3+ 를 씀. 마지막 layer 없애고 embedding layer를 더해서 embedding feature vector 를 뽑음.
 
 #### Methods
+
+Overview of FEELVOS method:
+
+현재 frame을 segmentation 하기 위해..
+
+1. 현재 frame 의 backbone feature 를 deeplab v3+ 로 뽑는다.
+2. backbone feature 를  embedding layer에 넣어서 pixel-wise embedding 뽑음
+3. pixel-wise embedding 을 이용하여 firse frame과 global match 하고 previous frame 과 local match 해서 global distance map과 local distance map 을 얻는다.
+4. backbone feature 과 glocal/local distance map 그리고 previous frame 의 predictions 을 dynamic segmentation head에 넣어 현재 frame을 predict 한다.
 
 * Semantic Embedding
     * 각각의 픽셀 p 에 대해 semantic embedding vector $e_p$ in the learned embedding space 를 뽑는다.

@@ -14,19 +14,17 @@ author: lee gunjun
 
 $$P_{ss'}=\mathbb{P}[S_{t+1} = s' | S_{t} = s]$$
 
-$$\begin{bmatrix}
-& & P_{11} & \cdots & P_{1n} \\
-
-P & = & \vdots & \ddots & \vdots \\
-
-& & P_{n1} & \cdots & P_{nn}
+$$P = \begin{bmatrix}
+P_{11} & \cdots & P_{1n} \\
+\vdots & \ddots & \vdots \\
+P_{n1} & \cdots & P_{nn}
 \end{bmatrix}$$
 
 where each row of the matrix sums to 1
 
-## Definition - Markov Provess
+## Definition - Markov Process
 ----
-> A Markov Procss (or Markov Chain) is a type <S, P>
+> A Markov Process (or Markov Chain) is a type <S, P>
 > - S is a set of states
 > - P is a state transition probability matrix <br>
 > $P_{ss'} = \mathbb{P}[S_{t+1} = s' | S_t = s]$
@@ -37,8 +35,8 @@ where each row of the matrix sums to 1
 > - S is a finite set of states
 > - P is a state transition probability matrix
 > $P_{ss'} = \mathbb{P}[S_{t+1} = s' | S_{t} = s]$ <br>
-> R is a reward function, $R_s = \mathbb{E}[R_{t+1} | S_t = s]$ <br>
-> $\gamma$ is a discount factor, $\gamma \in [0, 1]$
+> - R is a reward function, $R_s = \mathbb{E}[R_{t+1} | S_t = s]$ <br>
+> - $\gamma$ is a discount factor, $\gamma \in [0, 1]$
 
 ## Definition - $G_t$ (discounted reward)
 ----
@@ -66,7 +64,7 @@ v(s) &=&  \mathbb{E}[G_t | S_t = s]\\
 &=& \mathbb{E}[R_{t+1} + \gamma v(S_{t+1}) | S_t = s]
 \end{matrix}$$
 
-**Bellan Equation** in Matrix
+**Bellman Equation** in Matrix
 
 $$v(s) = R_s + \gamma \sum_{s' \in \mathcal{S}} P_{ss'}v(s')$$
 

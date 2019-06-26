@@ -22,180 +22,83 @@ onnx 로 변환하는 법도 아래에 적어놨다.
 ## 1. pytorch 모델을 똑같이 tensorflow로 만들기 & 2. 이름(scope) 동일하게 해주기.
 
 ```
-SqueezeNet(
-  (features): Sequential(
-    (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(2, 2))
-    (1): ReLU(inplace)
-    (2): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=True)
-    (3): Fire(
-      (squeeze): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
-      (squeeze_activation): ReLU(inplace)
-      (expand1x1): Conv2d(16, 64, kernel_size=(1, 1), stride=(1, 1))
-      (expand1x1_activation): ReLU(inplace)
-      (expand3x3): Conv2d(16, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-      (expand3x3_activation): ReLU(inplace)
-    )
-    (4): Fire(
-      (squeeze): Conv2d(128, 16, kernel_size=(1, 1), stride=(1, 1))
-      (squeeze_activation): ReLU(inplace)
-      (expand1x1): Conv2d(16, 64, kernel_size=(1, 1), stride=(1, 1))
-      (expand1x1_activation): ReLU(inplace)
-      (expand3x3): Conv2d(16, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-      (expand3x3_activation): ReLU(inplace)
-    )
-    (5): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=True)
-    (6): Fire(
-      (squeeze): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
-      (squeeze_activation): ReLU(inplace)
-      (expand1x1): Conv2d(32, 128, kernel_size=(1, 1), stride=(1, 1))
-      (expand1x1_activation): ReLU(inplace)
-      (expand3x3): Conv2d(32, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-      (expand3x3_activation): ReLU(inplace)
-    )
-    (7): Fire(
-      (squeeze): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1))
-      (squeeze_activation): ReLU(inplace)
-      (expand1x1): Conv2d(32, 128, kernel_size=(1, 1), stride=(1, 1))
-      (expand1x1_activation): ReLU(inplace)
-      (expand3x3): Conv2d(32, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-      (expand3x3_activation): ReLU(inplace)
-    )
-    (8): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=True)
-    (9): Fire(
-      (squeeze): Conv2d(256, 48, kernel_size=(1, 1), stride=(1, 1))
-      (squeeze_activation): ReLU(inplace)
-      (expand1x1): Conv2d(48, 192, kernel_size=(1, 1), stride=(1, 1))
-      (expand1x1_activation): ReLU(inplace)
-      (expand3x3): Conv2d(48, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-      (expand3x3_activation): ReLU(inplace)
-    )
-    (10): Fire(
-      (squeeze): Conv2d(384, 48, kernel_size=(1, 1), stride=(1, 1))
-      (squeeze_activation): ReLU(inplace)
-      (expand1x1): Conv2d(48, 192, kernel_size=(1, 1), stride=(1, 1))
-      (expand1x1_activation): ReLU(inplace)
-      (expand3x3): Conv2d(48, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-      (expand3x3_activation): ReLU(inplace)
-    )
-    (11): Fire(
-      (squeeze): Conv2d(384, 64, kernel_size=(1, 1), stride=(1, 1))
-      (squeeze_activation): ReLU(inplace)
-      (expand1x1): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1))
-      (expand1x1_activation): ReLU(inplace)
-      (expand3x3): Conv2d(64, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-      (expand3x3_activation): ReLU(inplace)
-    )
-    (12): Fire(
-      (squeeze): Conv2d(512, 64, kernel_size=(1, 1), stride=(1, 1))
-      (squeeze_activation): ReLU(inplace)
-      (expand1x1): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1))
-      (expand1x1_activation): ReLU(inplace)
-      (expand3x3): Conv2d(64, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
-      (expand3x3_activation): ReLU(inplace)
-    )
-  )
-  (classifier): Sequential(
-    (0): Dropout(p=0.5)
-    (1): Conv2d(512, 2, kernel_size=(1, 1), stride=(1, 1))
-  )
-)
+class ThNet(nn.Module):
+    def __init__(self):
+        super(ThNet, self).__init__()
+        self.conv1 = nn.Conv2d(1, 2, 5, padding=2)
+        self.conv2 = nn.Conv2d(2, 4, 5, padding=2)
+        self.fc1 = nn.Linear(4*2*2, 1024)
+        self.fc2 = nn.Linear(1024, 10)
+
+    def forward(self, x):
+        x = F.max_pool2d(F.relu(self.conv1(x)), 2)
+        x = F.max_pool2d(F.relu(self.conv2(x)), 2)
+        x = x.view(-1, 4*2*2)   # reshape Variable
+        x = F.relu(self.fc1(x))
+        x = F.dropout(x, training=self.training)
+        x = self.fc2(x)
+        return x
 ```
 
-와 같은 pytorch 모델이 있다고 하자. (위 모델은 [Cadene의 pretrainedmodels](https://github.com/Cadene/pretrained-models.pytorch) 의 squeezenet1_1 을 마지막 부분만 살짝 바꾼 것)
+와 같은 pytorch 모델이 있다고 하자.
 
-이를 똑같이 tensorflow 로 짜준다. 그리고 이름도 맞춰준다. (tf의 scope을 열심히 쓰면 된다..) 
+이를 똑같이 tensorflow 로 짜준다. 그리고 이름도 맞춰준다. (tf의 scope을 열심히 쓰면 된다.)
+
+**pytorch의 view와 tensorflow의 reshape의 방식이 다른점에 주의하자**
+
+이를 해결하기 위해 transpose 를 사용했다.
 
 ```
-from tensorflow.contrib.layers import conv2d, avg_pool2d, max_pool2d
+import tensorflow as tf
+from tensorflow.layers import conv2d, max_pooling2d, dense, flatten
 
-def fire_module(inputs, squeeze_depth, expand_depth, scope=None):
-    with tf.variable_scope(scope) as fire_scope:
-        net = _squeeze(inputs, squeeze_depth, scope=fire_scope)
-        net = _expand(net, expand_depth, scope=fire_scope)
-        return net
-
-def _squeeze(inputs, num_outputs, scope):
-    squeeze_conv = conv2d(inputs, num_outputs, [1, 1], stride=1, scope='squeeze')
-    return squeeze_conv
-
-def _expand(inputs, num_outputs, scope):
-    e1x1 = conv2d(inputs, num_outputs, [1, 1], stride=1, scope='expand1x1')
-    e3x3 = conv2d(inputs, num_outputs, [3, 3], scope='expand3x3')
-    return tf.concat([e1x1, e3x3], 3)
-
-
-class Squeezenet(object):
-    def __init__(self, num_class):
-        self._num_classes = num_class
-
-    def build(self, x):
-        self._is_built = True
-        return self._squeezenet(x)
-
-    def _squeezenet(self, images):
-        with tf.variable_scope('features'):
-            net = conv2d(images, 64, [3, 3], stride=[2, 2], scope='0')
-            net = tf.nn.relu(net)
-            net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], name='maxpool1', padding='VALID')
-
-            net = fire_module(net, 16, 64, scope='3')
-            net = fire_module(net, 16, 64, scope='4')
-
-            net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], name='maxpool4', padding='VALID')
-
-            net = fire_module(net, 32, 128, scope='6')
-            net = fire_module(net, 32, 128, scope='7')
-            
-            net = tf.nn.max_pool(net, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], name='maxpool8', padding='VALID')
-
-            net = fire_module(net, 48, 192, scope='9')
-            net = fire_module(net, 48, 192, scope='10')
-            net = fire_module(net, 64, 256, scope='11')
-            net = fire_module(net, 64, 256, scope='12')
-
-        net = conv2d(net, self._num_classes, [1, 1], stride=[1, 1], scope='last_conv')
-        net = tf.nn.avg_pool(net, ksize=[1, 13, 13, 1], strides=[1, 1, 1, 1], name='avgpool10', padding='VALID')
-        net = tf.squeeze(net, 1)
-        net = tf.squeeze(net, 1)
-        logits = tf.nn.softmax(net, axis=-1)
-        return logits
+def TfNet(x):
+    x = conv2d(x, 2, [5, 5], [1, 1], padding='same', name='conv1', activation=tf.nn.relu)
+    x = max_pooling2d(x, [2, 2], [2, 2], padding='valid')
+    x = conv2d(x, 4, [5, 5], [1, 1], padding='same', name='conv2', activation=tf.nn.relu)
+    x = max_pooling2d(x, [2, 2], [2, 2], padding='valid')
+    x = tf.transpose(x, perm=[3, 0, 1, 2])
+    x = tf.reshape(x, [-1, 16])
+    x = dense(x, 1024, activation=tf.nn.relu, name='fc1')
+    x = dense(x, 10, name='fc2')
+    return x
 ```
 
 ## 3. th->tf로 학습된 parameter를 옮기기
 
 
 ```
-th_model = pretrainedmodels.squeezenet1_1(num_classes=1000) # pytorch의 squeezenet
-th_model.last_conv =  nn.Conv2d(512, 2, kernel_size=(1, 1), stride=(1, 1))
+th_model = ThNet().eval()
 
-th_model.load_state_dict(torch.load('trans/squeeze.pth')) # 학습된 parameter load
-
-init_img = tf.placeholder(shape=[1, 224, 224, 3], dtype=tf.float32, name='input')
-tf_model = Squeezenet(2)
-out = tf_model.build(init_img) # tf 모델 생성
+tf_input = tf.placeholder(tf.float32, [None,8,8,1])
+tf_model = TfNet(tf_input)
 
 saver = tf.train.Saver()
+
 m = {}
-for (k, v) in th_model.named_parameters():
+for k, v in th_model.named_parameters():
     m[k] = v
 
 with tf.Session() as sess:
+    init = tf.global_variables_initializer()
+    sess.run(init)
     writer = tf.summary.FileWriter('logs', sess.graph)
-
-    # 학습된 parameter 전달
+    
     for v in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES):
-
         torch_name = v.name.replace('weights:0', 'weight') \
+                            .replace('kernel:0', 'weight') \
                             .replace('biases:0', 'bias') \
+                            .replace('bias:0', 'bias') \
                             .replace('norm:0', 'norm.weight') \
                             .replace('/', '.')
-
-        print(v.name, v.get_shape(), torch_name, m[torch_name].size())
+        print('transform:', v.name, v.get_shape(), torch_name, m[torch_name].size())
 
         if len(v.get_shape()) == 4:
-            v.load(m[torch_name].permute(2, 3, 1, 0).data.numpy())
+            sess.run(v.assign(m[torch_name].permute(2, 3, 1, 0).data.numpy()))
         elif len(v.get_shape()) == 1:
-            v.load(m[torch_name].data.numpy())
+            sess.run(v.assign(m[torch_name].data.numpy()))
+        elif len(v.get_shape()) == 2:
+            sess.run(v.assign(m[torch_name].data.numpy().T))
         else:
             raise Exception('unknown shape')
     
@@ -207,7 +110,7 @@ with tf.Session() as sess:
     writer.close()
 ```
 
-위 코드는 아마 conv layer와 batch normalization layer 만 고려하여 짠 코드일 것이다 \
+위 코드는 아마 fc layer, conv layer와 batch normalization layer 만 고려하여 짠 코드일 것이다 \
 추가적으로 원하는 layer가 있다면 v.name.replace(...) 를 적절하게 추가해서 써주자.
 
 위 코드까지 실행하는데 성공했다면 ckpt 와 pbtxt 을 성공적으로 얻을 수 있다.
@@ -264,25 +167,16 @@ def load_graph(frozen_graph_filename):
 
         return graph
 
-def convert(img):
-    img = np.array(img)
-    img = np.expand_dims(img, axis=0)
-    img = (img/255-MEAN)/STD
-    return img
-
 if __name__ == '__main__':
-    graph = load_graph('./trans/squeeze.pb')
+    graph = load_graph('{pb file path}')
     for op in graph.get_operations():
-            print(op.name)
-    x = graph.get_tensor_by_name('import/input:0')
-    y = graph.get_tensor_by_name('import/Softmax:0')
+        print(op.name)
+    x = graph.get_tensor_by_name('{input tensor name}')
+    y = graph.get_tensor_by_name('{output tensor name}')
 
-    with tf.Session(graph=graph)) as sess:
-        for img_name in tqdm(os.listdir('data/val/sky_no')):
-            img = Image.open(os.path.join('data/val/sky_no', img_name))
-            img = convert(img)
-            out = sess.run(y, feed_dict={x:img})
-            print(out)
+    with tf.Session(graph=graph) as sess:
+        out = sess.run(y, feed_dict={x:np.random.randn(1, 3, 224, 224)})
+        print(out)
 ```
 
 graph를 로드하고 (load_graph)
@@ -309,8 +203,8 @@ with tf.Session(graph=tf.Graph()) as sess:
     for op in sess.graph.get_operations():
         print(op.name)
 
-    input_tensor = sess.graph.get_tensor_by_name('input:0')
-    output_tensor = sess.graph.get_tensor_by_name('Softmax:0')
+    input_tensor = sess.graph.get_tensor_by_name('{input tensor name}')
+    output_tensor = sess.graph.get_tensor_by_name('{output tensor name}')
     tflite_model = tf.contrib.lite.toco_convert(sess.graph_def, [input_tensor], [output_tensor])
     open("{tflite 파일 저장할 경로}", "wb").write(tflite_model)
 ```
@@ -338,11 +232,15 @@ tf_converter.convert(
 
 [tfcoreml](https://github.com/tf-coreml/tf-coreml) 을 이용하면 쉽게 된다.
 
+# onnx
+
+onnx 는 trace-based exporter(export 하려면 한번 executing 해봐야함) 라서 dummy input 의 크기나, batch-size 가 달라지면 잘 작동 안 할 수 있음.
+
 ## pytorch 를 onnx 로 변환
 
 ----
 
-**틀린 정보 있을 수 있음**
+install onnx: conda install -c conda-forge onnx
 
 ```
 import torch
@@ -350,27 +248,58 @@ import torchvision
 
 model = torchvision.models.squeezenet1_1()
 model.load_state_dict(torch.load('input.pth'))
-model.features[2].ceil_model = False # pooling layer 의 ceil mode가 True 면 onnx 로 변환이 안 됨.
-model.features[5].ceil_model = False # pooling layer 의 ceil mode가 True 면 onnx 로 변환이 안 됨.
-model.features[8].ceil_model = False # pooling layer 의 ceil mode가 True 면 onnx 로 변환이 안 됨.
-torch.onnx.export(model, torch.ones(1, 3, 224, 224), 'output.onnx')
+torch.onnx.export(model, torch.ones(1, 3, 224, 224), 'output.onnx') #(model, dummy input, save path)
+```
+
+onnx model 를 inspecting
+```
+import onnx
+model = onnx.load('output.onnx')
+
+# Check that the IR is well formed
+onnx.checker.check_model(model)
+
+# Print a human readable representation of the graph
+print(onnx.helper.printable_graph(model.graph))
 ```
 
 ## onnx 를 pb 로 변환
 
 ----
 
-**틀린 정보 있을 수 있음**
+### installation
 
-먼저 pip install onnx-tf 를 한다.
+#### PIP
+```
+pip install onnx-tf 
+```
+
+#### Git
+```
+git clone git@github.com:onnx/onnx-tensorflow.git && cd onnx-tensorflow
+pip install -e .
+```
+
+### Do it!
 
 ```
 import onnx
 from onnx_tf.backend import prepare
 
-
 onnx_model = onnx.load("input.onnx")  # load onnx model
-tf_rep = prepare(onnx_model)  # prepare tf representation
+tf_rep = prepare(onnx_model)  # import the onnx model to tf
+
+print(tf_rep.inputs)
+print('-----------')
+print(tf_rep.outputs)
+print('-----------')
+print(tf_rep.tensor_dict)
+
+# inference
+output = tf_rep.run(np.random.randn(1,3,224,224))._0
+# output.shape == (1, 1000)
 
 tf_rep.export_graph("output.pb")  # export the model
+# input tensor: 'import/'+tf_rep.tensor_dict[tf_rep.inputs[0]].name
+# output tensor: 'import/'+tf_rep.tensor_dict[tf_rep.outputs[0]].name
 ```
