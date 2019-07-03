@@ -43,7 +43,10 @@ author: lee gunjun
     1. Rust (rls) - rust
 1. 우분투 원격 접속 - <https://extrememanual.net/12210>
     * desktop sharing 이용
-    
+1. chmod 폴더만 / 파일만
+    1. chmod 755 $(find /path/to/base/dir -type d)
+    1. chmod 644 $(find /path/to/base/dir -type f)
+
 ## 2. 수학
 
 1. convex optimization - <https://wikidocs.net/17203>

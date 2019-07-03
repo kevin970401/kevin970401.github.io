@@ -9,13 +9,18 @@ author: lee gunjun
 
 ----
 
+pytorch 로 개발을 하는 개발자도 가끔 모바일 배포등의 이유로 tf 로 모델을 변환해야 할 필요가 생길때가 있다. pytoch 모델을 tf 모델로 변환하는 방법에 알아보자.
+
 다음과 같은 순서대로 하면 된다.
 
 1. pytorch 모델을 똑같이 tensorflow 로 만든다.
 2. 이름을 동일하게 해준다.
 3. th->tf로 학습된 parameter를 옮겨준다.
 
-onnx 을 쓰는 방법도 있지만 지원 op 도 적고 결과물이 복잡하고.. 등등의 이유로 안 썼다.
+다른 방법으론 onnx 를 쓰는 게 있다.
+onnx가 예전엔 지원되는 operations가 적고 변환된 결과물도 난잡하여 별로였지만 최근엔 크게 발전해서 쓸만해졌다. 여전히 지원 안 되는 op는 있지만 우리가 쓰는 웬만한 op는 웬만해선 변환이 잘 되고 여전히 변환된 모델이 난잡하고 속도 측면에서도 비효율적으로 변환되는 문제가 있지만 그렇게 크지 않다.
+
+추천하는 작업 프로세스로는 demo 에서는 onnx 을 쓰고 배포할 때는 tf 모델을 직접 짜서 param을 옮긴 모델을 쓰는 것이다.
 
 onnx 로 변환하는 법도 아래에 적어놨다.
 
@@ -44,8 +49,7 @@ class ThNet(nn.Module):
 
 이를 똑같이 tensorflow 로 짜준다. 그리고 이름도 맞춰준다. (tf의 scope을 열심히 쓰면 된다.)
 
-**pytorch의 view와 tensorflow의 reshape의 방식이 다른점에 주의하자**
-
+**경고: pytorch의 view와 tensorflow의 reshape의 방식이 다르다**  
 이를 해결하기 위해 transpose 를 사용했다.
 
 ```
@@ -110,12 +114,10 @@ with tf.Session() as sess:
     writer.close()
 ```
 
-위 코드는 아마 fc layer, conv layer와 batch normalization layer 만 고려하여 짠 코드일 것이다 \
+위 코드는 fc layer, conv layer와 batch normalization layer 만 고려하여 짠 코드다.  
 추가적으로 원하는 layer가 있다면 v.name.replace(...) 를 적절하게 추가해서 써주자.
 
 위 코드까지 실행하는데 성공했다면 ckpt 와 pbtxt 을 성공적으로 얻을 수 있다.
-
-아래는 추가다.
 
 # 추가
 
@@ -130,7 +132,7 @@ with tf.Session() as sess:
 
 ----
 
-pb 파일은 tensorflow 의 freeze_graph를 이용하여 pbtxt와 ckpt를 이용하여 만들면 된다. \
+tensorflow 의 freeze_graph를 이용하여 pbtxt와 ckpt를 이용하여 pb 파일을 만들 수 있다.  
 freeze_graph는 tf를 설치할 때 자동으로 같이 설치된다.
 
 ```
@@ -147,8 +149,7 @@ ex) freeze_graph --input_graph=trans/squeeze_graph.pbtxt \
                  --output_node_names=Softmax
 ```
 
-output_node_names는 출력 node의 이름을 넣어주면 된다.
-
+output_node_names는 출력 node의 이름을 넣어주면 된다.  
 출력 node의 이름은 tensorboard 켜서 확인하는 게 제일 안전하고 쉽다.
 
 
@@ -179,10 +180,8 @@ if __name__ == '__main__':
         print(out)
 ```
 
-graph를 로드하고 (load_graph)
-
-input tensor와 output tensor를 찾아서 (graph.get_tensor_by_name)
-
+graph를 로드하고 (load_graph)  
+input tensor와 output tensor를 찾아서 (graph.get_tensor_by_name)  
 sess.run 해주면 된다.
 
 ## pb 파일을 tflite 로 변환
@@ -234,7 +233,7 @@ tf_converter.convert(
 
 # onnx
 
-onnx 는 trace-based exporter(export 하려면 한번 executing 해봐야함) 라서 dummy input 의 크기나, batch-size 가 달라지면 잘 작동 안 할 수 있음.
+*주의: onnx 는 trace-based exporter(export 할 때 trace를 이용, 한번 executing 해봐야 함) 라서 dummy input 의 크기나, batch-size 가 달라지면 잘 작동 안 할 수 있음.*
 
 ## pytorch 를 onnx 로 변환
 
@@ -303,3 +302,5 @@ tf_rep.export_graph("output.pb")  # export the model
 # input tensor: 'import/'+tf_rep.tensor_dict[tf_rep.inputs[0]].name
 # output tensor: 'import/'+tf_rep.tensor_dict[tf_rep.outputs[0]].name
 ```
+
+onnx 을 이용하여 pb 을 생성하면 input tensor 와 output tensor 의 이름을 tf_rep.inputs 와 tf_rep.outputs 로 쉽게 찾을 수 있다. 그렇게 찾은 tensor 이름 앞에 import/ 를 붙여주면 변환된 pb에서의 tensor 이름이 된다.
