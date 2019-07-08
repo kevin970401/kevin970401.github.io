@@ -16,12 +16,17 @@ author: lee gunjun
     2. ssh 연결 유지
     3. python의 package와 module
     4. 내가 쓰는 vscode extensions
+    5. 우분투 원격 접속
+    6. chmod 파일만 / 폴더만
 
 2. 수학
     1. convex optimization
     2. Introduction to Statistical Learning (ISLR)
     3. Elements of Statistical Learning (ESL)
     4. Linear Algebra
+    5. Sutton RL
+    6. cuda
+    7. prml
 
 ----
 
@@ -57,5 +62,8 @@ author: lee gunjun
     * Linear Algebra and its applications 와 Introduction to Linear Algebra 저자 G. strang의 강의다.
     * Linear Algebra and its applications 은 다른 책들보다 다양한 개념을 다뤄서 좋음.
     * 아쉬운 점은 위 강의의 주교재는 LA and its applications 가 아닌 Intro to LA 임.
-5. Sutton RL - http://incompleteideas.net/book/RLbook2018trimmed.pdf
+5. Sutton RL - <http://incompleteideas.net/book/RLbook2018trimmed.pdf>
+6. cuda - <http://courses.cms.caltech.edu/cs179/>
+7. prml - [prml](http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf)
+
 ----
