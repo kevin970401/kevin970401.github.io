@@ -96,33 +96,32 @@ learning group conv 는 multi-stage 임. 첫 stage 는 condensing stage: 학습 
 
 위 알고리즘을 자세히 살펴보자. 
 
-`1.` filter groups
+1 filter groups
 
 통상적 conv filter 는 $C_{in}*C_{out}*H*W$ 형태다. 근데 우리가 지금 다루는 conv 는 1x1이므로 그냥 $(C_{out}, C_{in})$ 이라 봐도 됨. 먼저 training 하기 전에 filter 를 g개 group 으로 나눔. $F^1, \cdots, F^g$ 각 $F$ 는 $(\frac{C_{out}}{g}, C_{in})$ 임. 
 
-`2.` Condensation Criterion
+2 Condensation Criterion
 
 training 하면서 덜 중요한 input feature 를 각 group 마다 제거함. 제거 알고리즘: 각 group 의 column 별로 L1-norm 을 구하고 norm 이 가장 작은 column 을 제거. 즉 group 내에서 가장 안쓰이는 input feature channel 을 없앤다는 의미다. 이렇게 pruning 을 한 group 내의 output channel 들은 input channel 을 공유할 것이다. 그리고 한 input channel 이 여러 output group 으로 갈 수 있다. 중복 되는 애들은 group conv 를 위해 replicate 함.
 
-`2-1.` Group Lasso
+2-1 Group Lasso
 
 loss에 L1 regularization 을 도입한다. 다만 `2.`에서 하는 pruning 의 accuracy 부정적 영향을 없애기 위해 각 column 별로 l1-norm 을 계산하여 적용한다.
 
 $$group lasso = \sum_{g=1}^G \sum_{j=1}^{C_in} \sqrt{\sum_{i=1}^{\frac{C_{out}}{g}}{F_{i,j}^g}^2}$$
 
-`3.` Condensation Factor: $C$
+3 Condensation Factor: $C$
 
 사실 여기선 g 가 딱 $C_{out}, C_{in}$ 의 약수일 필요 없음. each group 이 $C=\lfloor \frac{C_{in}}{C} \rfloor$ 개 의 input feature 를 선택하게 함.
 
-`4.` Condensation Procedure
+4  Condensation Procedure
 
 우리 weight pruning 은 conventional pruning 과 다르게 training 후에 하는 게 아니라 training 하면서 함. $C-1$ 개의 condensation stage 동안 $\frac{1}{C}$ 만큼의 input feature 를 pruning 하면 최종적으로 $\frac{1}{C}$ 만큼의 input feature 가 남음.
 
 group convolution 도입을 통해 densenet 에 변화를 두가지 더 줌.
 
-`1.` growth rate 를 exponentially increase 함. 가까운 layer에 더 큰 concat 가중치를 주기위해 $k=2^{m-1}k_0$ 로 exponential 하게 줌.
-
-`2.` fully dense connectivity: dense block 없이 한번에 함. feature size 가 다르면 downsample 해서 맞춤.
+1.  growth rate 를 exponentially increase 함. 가까운 layer에 더 큰 concat 가중치를 주기위해 $k=2^{m-1}k_0$ 로 exponential 하게 줌.
+2.  fully dense connectivity: dense block 없이 한번에 함. feature size 가 다르면 downsample 해서 맞춤.
 
 결과론적으로 group conv 에 의한 err 증가를 낮출 수 있었고, 최종적으로 model param 개수를 동일하게 하면 전보다 더 err를 낮출 수 있음
 
@@ -130,9 +129,8 @@ group convolution 도입을 통해 densenet 에 변화를 두가지 더 줌.
 
 mobilenetv2 을 활용하여 detection 으로는 SSDLite, segmentation 으로는 Mobile DeepLabv3 이 파생되어 나옴.
 
-`1.` mobilenet v1 에서 나온 depthwise separable convolution 계속 씀.
-
-`2.` linear bottlenecks
+1. mobilenet v1 에서 나온 depthwise separable convolution 계속 씀.
+2. linear bottlenecks
 
 <!-- resnet 와 같은 곳에서 bottleneck 은 dimension 을 1x1 conv 로 줄이고 다시 늘리는 형태였다. 이런 형태에는 문제가 있다.
 
@@ -150,7 +148,7 @@ layer 의 dimension 을 줄이기 위해 mobilenet v1 에서는 width multiplier
 
 (사실 bottleneck에서 relu 에 대한 문제제기는 이미 Deep Pyramidal Residual Networks(CVPR 2017) 에 나왔었다.)
 
-`2.` Inverted residuals
+Inverted residuals
 
 보통의 bottleneck block 은 input 이 들어오면 bottleneck 에서 channel 을 줄이고 conv 하고 expansion 을 하는데 이는 input 과 output channel 이 크고 중간 과정의 channel 수가 적은 구조이다. 그렇기에 여기에 residual 연산을 하게 되면 많은 computation 과 memory 를 사용한다. mobilenet v2 에서는 이를 비효율적인 과정으로 생각하고 효과적으로 바꾸기 위해 inverted residual 을 제안한다. 이는 input 을 먼저 expansion 하고 squeeze 하는 구조로 residual 과정의 computation 과 memory 를 줄여준다. 
 

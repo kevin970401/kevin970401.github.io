@@ -106,7 +106,7 @@ MC iteration 에서 episode-by-episode 로 evaluation과 improvement를 바꾸�
 
 ### Monte Carlo ES(Exploring Starts), for estimating optimal policy
 
-<img src="/assets/images/rl5/MCES.png">
+![](/assets/images/rl5/MCES.png)
 
 MC ES의 주목할 점은 return이 어떤 policy에서 나온 것이든 상관하지 않고 다 accumulate 한 다음에 average를 하는 것으로 value function을 구한다는 점이다. 즉, MC ES는 어떤 suboptimal policy에 converge 하지 않는다. (suboptimal policy에 converge 한다는 것은 어떤 policy에 대해 value function을 estimate해야 한다는 의미인데, MC ES는 policy가 계속 변화함) policy와 value function이 optimal 일 때 비로소 stability를 얻을 수 있다. **MC ES가 정말 optimal로 converge 하는가는 수학적으로 증명되지 않았다..** (for a partial solution, see Tsitsiklis, 2002)
 
