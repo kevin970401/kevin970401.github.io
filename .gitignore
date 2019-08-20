@@ -9,6 +9,3 @@ _site
 # Bundler
 .bundle/
 vendor/
-
-css/
-assets/icons/

@@ -146,6 +146,8 @@ training 은 multi-stage 이지만 simple 함.
 
 ## 3. Region Proposal Networks
 
+![](/assets/images/detection/faster_r-cnn.png)
+
 RPN 은 any size 의 image 를 input 으로 받아 region proposals 와 그의 objectness score 을 출력하는 것. backbone CNN network 로는 ZFnet 와 VGG 을 사용했다.
 
 RPN 의 구성
