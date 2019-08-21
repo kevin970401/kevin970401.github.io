@@ -18,7 +18,7 @@ pytorch 로 개발을 하는 개발자도 가끔 모바일 배포등의 이유�
 3. th->tf로 학습된 parameter를 옮겨준다.
 
 다른 방법으론 onnx 를 쓰는 게 있다.
-onnx가 예전엔 지원되는 operations가 적고 변환된 결과물도 난잡하여 별로였지만 최근엔 크게 발전해서 쓸만해졌다. 여전히 지원 안 되는 op는 있지만 우리가 쓰는 웬만한 op는 웬만해선 변환이 잘 되고 여전히 변환된 모델이 난잡하고 속도 측면에서도 비효율적으로 변환되는 문제가 있지만 그렇게 크지 않다.
+onnx가 예전엔 지원되는 operations가 적고 변환된 결과물도 난잡하여 별로였지만 최근엔 크게 발전해서 쓸만해졌다. 여전히 지원 안 되는 op는 있지만 우리가 쓰는 웬만한 op는 웬만해선 변환이 잘 되고 여전히 변환된 모델이 난잡하고 속도 측면에서도 비효율적으로 변환되는 문제는 여전히 있다. 특히 DepthwiseConv 의 경우 몇배나 느리게 변환된다.
 
 추천하는 작업 프로세스로는 demo 에서는 onnx 을 쓰고 배포할 때는 tf 모델을 직접 짜서 param을 옮긴 모델을 쓰는 것이다.
 
@@ -303,4 +303,4 @@ tf_rep.export_graph("output.pb")  # export the model
 # output tensor: 'import/'+tf_rep.tensor_dict[tf_rep.outputs[0]].name
 ```
 
-onnx 을 이용하여 pb 을 생성하면 input tensor 와 output tensor 의 이름을 tf_rep.inputs 와 tf_rep.outputs 로 쉽게 찾을 수 있다. 그렇게 찾은 tensor 이름 앞에 import/ 를 붙여주면 변환된 pb에서의 tensor 이름이 된다.
+onnx 을 이용하여 pb 을 생성하면 input tensor 와 output tensor 의 이름을 tf_rep.inputs 와 tf_rep.outputs 로 쉽게 찾을 수 있다. 
