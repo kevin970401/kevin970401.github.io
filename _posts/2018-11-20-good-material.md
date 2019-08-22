@@ -51,6 +51,17 @@ author: lee gunjun
 1. chmod 폴더만 / 파일만
     1. chmod 755 $(find /path/to/base/dir -type d)
     1. chmod 644 $(find /path/to/base/dir -type f)
+1. vscode IntelliSense engine 변경 (Microsoft Python Language Server $\rightarrow$ Jedi)
+    1. Ctrl + Shift + P
+    1. "Preference: Configure Language Specific" 찾아서 클릭
+    1. "Python" 찾아서 클릭
+    1. "python.jediEnabled": true 로 변경
+        1. false: Microsoft Python Language Server
+        1. true: Jedi
+    1. [reference](https://code.visualstudio.com/docs/python/settings-reference)
+1. pylint 에서 tensorflow keras import error
+    1. ln -s $(python -c "import os, tensorflow as tf; print(os.path.dirname(tf.estimator.__file__))") $(python -c "import os, tensorflow as tf; print(os.path.dirname(tf.__file__)+'/estimator')")
+    
 
 ## 2. 수학
 
