@@ -60,7 +60,7 @@ author: lee gunjun
         1. true: Jedi
     1. [reference](https://code.visualstudio.com/docs/python/settings-reference)
 1. pylint 에서 tensorflow keras import error
-    1. ln -s $(python -c "import os, tensorflow as tf; print(os.path.dirname(tf.estimator.__file__))") $(python -c "import os, tensorflow as tf; print(os.path.dirname(tf.__file__)+'/estimator')")
+    1. ln -s \$(python -c "import os, tensorflow as tf; print(os.path.dirname(tf.estimator.__file__))") $(python -c "import os, tensorflow as tf; print(os.path.dirname(tf.__file__)+'/estimator')")
     
 
 ## 2. 수학

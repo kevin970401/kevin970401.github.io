@@ -127,12 +127,13 @@ hdf5 형식으로 저장된 keras 모델을 tflite 로 변환하는 것은 매�
 ```
 import tensorflow as tf
 h5_path = 'path/to/h5file.h5'
-converter = tf.lite.TFLiteConverter.from_keras_model_file(h5_path)
+converter = tf.lite.TFLiteConverter.from_keras_model_file(h5_path) # tf version < 2
+converter = tf.lite.TFLiteConverter.from_keras_model(keras_model) # tf version >= 2
 tflite_model = converter.convert()
 open('path/to/tflite_file.tflite', 'wb').write(tflite_model)
 ```
 
-완성!
+완성! tensorflow 가 2.0 이상이면 from_keras_model 을 사용하자.
 
 혹은 weight 를 uint8 로 quantize 하고 싶다면 아래와 같이 하면 된다.
 
@@ -150,7 +151,7 @@ open('path/to/tflite_weight_quant_model.tflite', 'wb').write(tflite_weight_quant
 만약 모델 input 의 size 가 (224, 224, 3) 이 아니라면 아래 representative_dataset 을 그에 맞춰 바꿔주자
 
 ```
-def representative_dataset():
+def representative_dataset_gen():
     with tf.compat.v1.Session() as sess:
         imgs = ['path/to/img1', 'path/to/img2', ...]
         for img_path in imgs:
