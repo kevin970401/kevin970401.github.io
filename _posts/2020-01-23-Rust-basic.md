@@ -10,6 +10,7 @@ author: lee gunjun
 # Chapter 10. Generic Types, Traits, Lifetimes
 
 <details>
+<div markdown="1">
 
 ## Generic
 
@@ -380,12 +381,14 @@ fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a st
 }
 ```
 
+</div>
 </details>
 
 
 # Chapter 13. Iterators and Closures
 
 <details>
+<div markdown="1">
 
 ## Clouser
 
@@ -618,4 +621,5 @@ impl Iterator for Counter {
 
 iterator 를 쓰는게 for 문 도는 것보다 속도가 빠름. loop unrolling 이 가능하기 때문인듯
 
+</div>
 </details>
