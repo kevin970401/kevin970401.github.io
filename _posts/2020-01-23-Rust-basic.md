@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Rust basic"
-categories: Rust, PL
+categories: Rust RL
 author: lee gunjun
 ---
 
@@ -42,7 +42,7 @@ fn main() {
 }
 ```
 
-place type name declarations inside angle brackets, <>, between the name of the function and the parameter list
+place type name declarations inside angle brackets, `<>`, between the name of the function and the parameter list
 
 참고: vector 를 argument 로 받을 때 Type 은 &[i32] 요렇게 함.
 
@@ -179,7 +179,7 @@ impl Summary for Tweet {
 
 한가지 주목해야하는 점은, trait 과 type 둘 중 하나라도 우리 crate local 에 있을때에만 그 type 에 그 trait 를 구현할 수 있다는 점입니다.  
 즉 외부 라이브러리의 type 에 대해 외부 라이브러리의 trait 를 구현할 수 없습니다.  
-예를 들어 Vec<T> 에 대한 Display trait 은 구현 불가능합니다.
+예를 들어 `Vec<T>` 에 대한 Display trait 은 구현 불가능합니다.
 
 참고로 
 
@@ -390,7 +390,7 @@ fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a st
 <details>
 <div markdown="1">
 
-## Clouser
+## Closure
 
 Rust 의 closure 는 변수를 전달, 다른 함수에 argument 로 전달이 가능한 anonymous function 이다.
 
@@ -623,3 +623,453 @@ iterator 를 쓰는게 for 문 도는 것보다 속도가 빠름. loop unrolling
 
 </div>
 </details>
+
+# Chapter 15. Smart Pointers
+
+<details>
+<div markdown="1">
+
+smart pointer 는 메타 데이터를 가지고 있는 포인터다. `String`, `Vec<T>` 가 사실 스마트 포인터였음.
+
+스마트포인터는 구조체를 통해 구현되어 있음. 다른 것과 차이점은 `Deref` 과 `Drop` Trait 를 구현한다는 점.
+
+스마트 포인터중 `Box<T>`, `Rc<T>`, `RefCell<T>`, `Ref<T>`, `RefMut<T>` 에 대해 알아본다.
+
+## Box\<T\>
+
+데이터를 힙에 저장시켜줌. 스택에는 그 데이터를 가리키는 포인터 저장됨.
+
+```
+fn main() {
+    let b = Box::new(5);
+    println!("b = {}", b);
+}
+
+/// output > 
+/// b = 5
+```
+
+Box 의 lifetime 이 끝나면 스택과 힙데 있는 데이터 모두 할당 해제 됨.
+
+Box 를 활용하는 코드를 작성해보자. 
+
+```
+enum List {
+    Cons(i32, List),
+    Nil,
+}
+
+use List::{Cons, Nil};
+
+fn main() {
+    let list = Cons(1, Cons(2, Cons(3, Nil)));
+}
+```
+
+위와 같은 상황을 만들고 싶을 수 있다. 이러한 자료구조를 *cons list* 라고 함
+
+위 코드는 `recursive type `List` has infinite size` 와 같은 에러를 내며 컴파일이 안된다.
+
+위 코드를 아래처럼 수정하면 된다. 
+
+```
+enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+
+use List::{Cons, Nil};
+
+fn main() {
+    let list = Cons(1,
+        Box::new(Cons(2,
+            Box::new(Cons(3,
+                Box::new(Nil))))));
+}
+```
+
+이제 List 는 Cons 에 들어가는 i32 와, Box pointer 를 저장할 만큼의 저장용량을 확보하면 됨을 안다.
+
+## Deref Trait
+
+Deref Trait 을 구현하면 *dereference operator*, \* 의 동작을 customize 하는 걸 허락해준다.
+
+```
+fn main() {
+    let x = 5;
+    let y = &x;
+
+    assert_eq!(5, y); // -> compile error!
+    assert_eq!(5, *y); // -> correct!
+}
+```
+
+number 와 number 에 대한 레퍼런스를 비교하는 건 불가능. 이를 아래와 같이 Box 로 바꿔보자
+
+```
+fn main() {
+    let x = 5;
+    let y = Box::new(x);
+
+    assert_eq!(5, y); // -> compile error!
+    assert_eq!(5, *y); // -> correct!
+}
+```
+
+그런데 Box 는 어떻게 dereference pointer 가 사용가능 한걸까? 이를 알아보기 위해 아래와 같은 type 을 만들어보자.
+
+```
+struct MyBox<T>(T);
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox(x)
+    }
+}
+
+use std::ops::Deref;
+
+impl<T> Deref for MyBox<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.0
+    }
+}
+
+fn main() {
+    let x = 5;
+    let y = MyBox::new(x);
+
+    assert_eq!(5, x);
+    assert_eq!(5, *y);
+}
+```
+
+위 코드는 컴파일이 된다. 근데 이 코드에서 deref 는 대체 뭘까? dereference operator \* 와 어떤 관련이 있을까?
+
+사실 위 코드의 `*y` 는 `*(y.deref())` 와 같다. 
+
+deref 가 참조자를 반환 하는 이유는 다음과 같다. 만약 ownership 를 반환했다면 이상해질테니까
+
+### deref coercion
+
+```
+fn hello(name: &str) {
+    println!("Hello, {}!", name);
+}
+
+fn main() {
+    let m = MyBox::new(String::from("Rust"));
+    hello(&m);
+}
+```
+
+Rust 는 `&m` 을 자동으로 `&String` 으로 바꿔준뒤 다시한번 `&String` 을 `&str` 로 바꿔줌. 이는 `MyBox` 와 `String` 에게 Deref 가 구현되었기 때문이다.
+
+이러한 Rust 의 똑똑한 행동을 deref coercion 이라 부름.
+
+## Drop Trait
+
+Drop Trait 을 통해 값이 scope 을 벗어낫을때의 행동을 customize 할 수 있다.
+
+```
+struct CustomSmartPointer {
+    data: String,
+}
+
+impl Drop for CustomSmartPointer {
+    fn drop(&mut self) {
+        println!("Dropping CustomSmartPointer with data `{}`!", self.data);
+    }
+}
+
+fn main() {
+    let c = CustomSmartPointer { data: String::from("my stuff") };
+    let d = CustomSmartPointer { data: String::from("other stuff") };
+    println!("CustomSmartPointers created.");
+}
+
+/// output > 
+/// CustomSmartPointers created.
+/// Dropping CustomSmartPointer with data `other stuff`!
+/// Dropping CustomSmartPointer with data `my stuff`!
+```
+
+변수가 선언된 역순으로 drop 됨
+
+아래와 같은 코드를 통해 scope 을 벗어나기 전에 미리 drop 할 수 있다.
+
+```
+fn main() {
+    let c = CustomSmartPointer { data: String::from("some data") };
+    println!("CustomSmartPointer created.");
+    drop(c); // c drop 됨.
+    println!("CustomSmartPointer dropped before the end of main.");
+}
+
+/// output >
+/// CustomSmartPointer created.
+/// Dropping CustomSmartPointer with data `some data`!
+/// CustomSmartPointer dropped before the end of main.
+```
+
+`c.drop()` 이 아니라 `drop(c)` 임에 주목하자.
+
+## Rc\<T\> trait
+
+여러 owner 를 가져야 하는 상황이 있을 수 있다. (ex. Graph)  이를 위해 `Rn` trait 을 제공한다.
+
+Rn 은 값의 참조자들을 추적하여 그 갯수가 0이 되었을때 정리해준다.
+
+Rc 은 single thread 에서만 가능하다.
+
+다음과 같은 코드를 보자
+
+```
+enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+
+use crate::List::{Cons, Nil};
+
+fn main() {
+    let a = Cons(5,
+        Box::new(Cons(10,
+            Box::new(Nil))));
+    let b = Cons(3, Box::new(a));
+    let c = Cons(4, Box::new(a));
+}
+```
+
+b 를 선언할때 a 의 ownership 이 넘어갔으므로 `let c = Cons(4, Box::new(a));` 에서 컴파일 에러가 발생한다.
+
+이를 해걀하기 위해 다음과 같이 코드를 변경하자.
+
+```
+enum List {
+    Cons(i32, Rc<List>),
+    Nil,
+}
+
+use List::{Cons, Nil};
+use std::rc::Rc;
+
+fn main() {
+    let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
+    let b = Cons(3, Rc::clone(&a));
+    let c = Cons(4, Rc::clone(&a));
+}
+```
+
+Rc::clone 은 깊은 복사 없이 참조 카운트만 증가 시킴.
+
+## RefCell\<T\> Trait
+
+interior mutability 이라는 러스트의 디자인 패턴은 불변 참조자가 있더라도 값을 바꿀 수 있는 패턴임.
+
+이를 위해 unsafe code 을 이용함. 이는 chapter 19 에서 더 자세히 다룰 것.
+
+RefCell 은 Reference 와 비슷하지만, 컴파일 단계에서 immutability 가 체크되는 Reference 와는 다르게 runtime 에 체크하고 룰을 어길시 panic! 을 일으킴.
+
+RefCell 도 Rc 처럼 single thread 에서만 사용가능하다.
+
+```
+fn main() {
+    let x = 5;
+    let y = &mut x;
+}
+```
+
+위 코드가 컴파일 안 되는 건 이미 알고 있다. 하지만 위와 같은 상황이 유용할 때가 있을 것이다. 다음과 같은 코드를 생각해보자.
+
+```
+pub trait Messenger {
+    fn send(&self, msg: &str);
+}
+
+pub struct LimitTracker<'a, T: Messenger> {
+    messenger: &'a T,
+    value: usize,
+    max: usize,
+}
+
+impl<'a, T> LimitTracker<'a, T>
+    where T: Messenger {
+    pub fn new(messenger: &T, max: usize) -> LimitTracker<T> {
+        LimitTracker {
+            messenger,
+            value: 0,
+            max,
+        }
+    }
+
+    pub fn set_value(&mut self, value: usize) {
+        self.value = value;
+
+        let percentage_of_max = self.value as f64 / self.max as f64;
+
+        if percentage_of_max >= 1.0 {
+            self.messenger.send("Error: You are over your quota!");
+        } else if percentage_of_max >= 0.9 {
+             self.messenger.send("Urgent warning: You've used up over 90% of your quota!");
+        } else if percentage_of_max >= 0.75 {
+            self.messenger.send("Warning: You've used up over 75% of your quota!");
+        }
+    }
+}
+```
+
+일단 이정도로 정리함. chapter 17 다 쓰고 돌아오겠음
+
+</div>
+</details>
+
+# Chapter 17. OOP Features of Rust
+
+<details>
+<div markdown="1">
+
+OOP 는 Object, 객체로 구성된다. 객체는 data 와 그 data 를 쓰는 procedure 를 구성한다. 이러한 procedure 를 method, operation 이라 부른다.
+
+Rust 의 Struct, enum 이 바로 위 정의를 따르는 객체라 할 수 있다.
+
+## Encapsulation 
+
+흔히 OOP 와 얽혀 설명 되어지는 게 Encapsulation 이다. Encapsulation 은 object 의 상세구현을 밖에서 접근 못하게 하는 것을 의미한다. 공개된 API 을 통해서만 interact 한다. 즉 객체를 사용하는 코드에서 객체 안의 내용물을 직접 접근하여 바꾸거나 실행하면 안된다.
+
+다음 코드는 Rust 에서 Encapsulation 을 구현한 것이다.
+
+<div>
+<details>
+<div markdown="1">
+
+```
+pub struct AveragedCollection {
+    list: Vec<i32>,
+    average: f64,
+}
+
+impl AveragedCollection {
+    pub fn add(&mut self, value: i32) {
+        self.list.push(value);
+        self.update_average();
+    }
+
+    pub fn remove(&mut self) -> Option<i32> {
+        let result = self.list.pop();
+        match result {
+            Some(value) => {
+                self.update_average();
+                Some(value)
+            },
+            None => None,
+        }
+    }
+
+    pub fn average(&self) -> f64 {
+        self.average
+    }
+
+    fn update_average(&mut self) {
+        let total: i32 = self.list.iter().sum();
+        self.average = total as f64 / self.list.len() as f64;
+    }
+}
+```
+
+</div>
+</details>
+</div>
+
+## Inheritance
+
+부모 객체의 data 와 procedure 을 자식 객체에게 상속해주는 것.
+
+사실 Rust 는 상속이 없다. 대신 상속을 엇비슷하게 구현할 다른 솔루션을 제공한다
+
+Trait 를 사용하여 상속과 비슷한 효과를 낼 수 있다.
+
+사실 상속을 사용하는 다른 이유로 polymorphism 이 있다. polymorphism 은 여러 객체가 특정 특성을 공유한다면 서로 바꿔 쓸 수 있다는 것을 말한다.
+
+러스트는 generic 을 이용하여 호환할 타입을 제한하고, Trait bounds 을 이용하여 polymorphism 을 해소한다. 이를 bounded parametric polymorphism 이라 부른다.
+
+상속은 사실 요즘 인기가 떨어지는 디자인 패턴이다. 너무 많은 것을 상속하는 문제점이 있기 때문. 
+
+어떻게 rust 에서 polymorphism 을 구현하는 지 알아보자
+
+## Using Trait Objects That Allow for Values of Different Types
+
+하나의 예시 코드를 작성하여 알아볼 것
+
+```
+pub trait Draw {
+    fn draw(&self);
+}
+
+pub struct Screen {
+    pub components: Vec<Box<dyn Draw>>,
+}
+
+impl Screen {
+    pub fn run(&self) {
+        for component in self.components.iter() {
+            component.draw();
+        }
+    }
+}
+```
+
+`Box<dyn Draw>` 는 Draw trait 를 구현하는 어떤 타입도 올 수 있다는 것. 이걸 trait object 라 부름
+
+trait object 를 사용하는 건 generic 과는 다른 효과를 가져온다. 만약 위 코드 대신 아래와 같은 코드를 짰다면 vector 안의 모든 element 는 동일한 타입이어야 할 것이다.
+
+```
+pub struct Screen<T: Draw> {
+    pub components: Vec<T>,
+}
+
+impl<T> Screen<T>
+    where T: Draw {
+    pub fn run(&self) {
+        for component in self.components.iter() {
+            component.draw();
+        }
+    }
+}
+```
+
+Trait object 는 dynamic dispatch 을 수행한다. dynamic dispatch 란 어떤 타입에 어떤 메소드를 사용할지를 컴파일 타임에는 모르고 런타임에서야 아는 것을 말함. runtime 에 overhead 가 발생함.
+
+Trait object 가 가능한 trait 에는 다음과 같은 규약이 있음
+
+1. return type is not `Self`
+2. there are No generic parameters
+
+이 두 규약을 만족하는 object-safe 한 trait 만 가능.
+
+object-safe 하지 않은 trait 로 Clone 이 있다. 
+
+```
+pub trait Clone {
+    fn clone(&self) -> Self;
+}
+```
+
+따라서 아래 코드는 컴파일 안 됨.
+
+```
+pub struct Screen {
+    pub components: Vec<Box<Clone>>,
+}
+```
+
+</div>
+</details>
+
+The () type, sometimes called "unit" or "nil".
+
+The () type has exactly one value (), and is used when there is no other meaningful value that could be returned
+
+functions without a -> ... implicitly have return type ()
