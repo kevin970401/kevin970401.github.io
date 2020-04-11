@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Rust basic"
-categories: Rust RL
+categories: Rust PL
 author: lee gunjun
 ---
 
